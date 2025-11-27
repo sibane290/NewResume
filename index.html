@@ -1,0 +1,2200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume Builder </title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        :root {
+            --primary: #1e40af;
+            --primary-light: #3b82f6;
+            --primary-dark: #1e3a8a;
+            --secondary: #64748b;
+            --accent: #f59e0b;
+            --success: #10b981;
+            --danger: #ef4444;
+            --light: #f8fafc;
+            --dark: #1e293b;
+            --blue-50: #eff6ff;
+            --blue-100: #dbeafe;
+            --blue-200: #bfdbfe;
+            --blue-300: #93c5fd;
+            --blue-400: #60a5fa;
+            --blue-500: #3b82f6;
+            --blue-600: #2563eb;
+            --blue-700: #1d4ed8;
+            --blue-800: #1e40af;
+            --blue-900: #1e3a8a;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--blue-800), var(--blue-600));
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            color: white;
+        }
+
+        .app-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
+            min-height: 80vh;
+        }
+
+        .input-section {
+            background: var(--blue-50);
+            padding: 2rem;
+            overflow-y: auto;
+            max-height: 80vh;
+        }
+
+        .preview-section {
+            background: white;
+            padding: 2rem;
+            border-left: 3px solid var(--blue-200);
+            position: relative;
+        }
+
+        .template-selector {
+            margin-bottom: 2rem;
+        }
+
+        .template-dropdown {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid var(--blue-200);
+            border-radius: 8px;
+            font-size: 1rem;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .template-dropdown:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--blue-100);
+        }
+
+        .template-preview {
+            height: 80px;
+            background: var(--blue-100);
+            border-radius: 8px;
+            margin-top: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: var(--dark);
+            transition: all 0.3s ease;
+        }
+
+        .template-1 .template-preview { 
+            background: linear-gradient(135deg, var(--blue-800), var(--blue-600)); 
+            color: white; 
+        }
+        .template-2 .template-preview { 
+            background: linear-gradient(135deg, var(--blue-700), var(--blue-400)); 
+            color: white; 
+        }
+        .template-3 .template-preview { 
+            background: linear-gradient(135deg, var(--blue-600), var(--blue-300)); 
+            color: white; 
+        }
+
+        .section {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--blue-200);
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--blue-800);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .section-title::before {
+            content: '';
+            width: 4px;
+            height: 20px;
+            background: var(--primary);
+            border-radius: 2px;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        label {
+            display: block;
+            font-weight: 500;
+            color: var(--blue-800);
+            margin-bottom: 0.5rem;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid var(--blue-200);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--blue-100);
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-outline:hover {
+            background: var(--blue-50);
+        }
+
+        .btn-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .resume-preview {
+            background: white;
+            min-height: 600px;
+            padding: 2rem;
+            border: 2px solid var(--blue-200);
+            border-radius: 12px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Template 1: Professional Blue */
+        .template-1 .resume-header {
+            text-align: center;
+            border-bottom: 3px solid var(--primary);
+            padding-bottom: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .template-1 .resume-name {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--blue-800);
+            margin-bottom: 0.5rem;
+        }
+
+        .template-1 .resume-title {
+            font-size: 1.25rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .template-1 .resume-contact {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+            color: var(--secondary);
+        }
+
+        .template-1 .resume-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .template-1 .section-title {
+            color: var(--blue-800);
+            border-bottom: 2px solid var(--blue-200);
+            padding-bottom: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Template 2: Modern Blue */
+        .template-2 .resume-header {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .template-2 .resume-name {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--blue-800);
+        }
+
+        .template-2 .resume-title {
+            font-size: 1.25rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .template-2 .resume-contact {
+            background: var(--blue-50);
+            padding: 1rem;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary);
+        }
+
+        /* Template 3: Creative Blue */
+        .template-3 .resume-header {
+            background: linear-gradient(135deg, var(--blue-700), var(--blue-500));
+            color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+        }
+
+        .template-3 .resume-name {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .template-3 .resume-title {
+            font-size: 1.25rem;
+            opacity: 0.9;
+        }
+
+        .skill-tag {
+            display: inline-block;
+            background: var(--blue-100);
+            color: var(--primary);
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            margin: 0.25rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .experience-item, .education-item, .certification-item, .reference-item {
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background: var(--blue-50);
+            border-radius: 8px;
+            border-left: 4px solid var(--primary);
+            position: relative;
+        }
+
+        .item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 0.5rem;
+        }
+
+        .item-title {
+            font-weight: 600;
+            color: var(--blue-800);
+        }
+
+        .item-subtitle {
+            color: var(--secondary);
+            font-size: 0.9rem;
+        }
+
+        .item-date {
+            color: var(--secondary);
+            font-size: 0.875rem;
+            min-width: 120px;
+            text-align: right;
+        }
+
+        .item-actions {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .ats-score {
+            background: #f0fdf4;
+            border: 2px solid #bbf7d0;
+            border-radius: 12px;
+            padding: 1rem;
+            margin-top: 2rem;
+        }
+
+        .score-bar {
+            height: 12px;
+            background: var(--blue-200);
+            border-radius: 6px;
+            overflow: hidden;
+            margin: 0.5rem 0;
+        }
+
+        .score-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--success), #22c55e);
+            transition: width 0.5s ease;
+        }
+
+        .keyword-suggestions {
+            background: var(--blue-50);
+            border: 2px solid var(--blue-300);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+
+        .keyword-tag {
+            display: inline-block;
+            background: white;
+            border: 1px solid var(--blue-400);
+            color: var(--blue-700);
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            margin: 0.25rem;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .keyword-tag:hover {
+            background: var(--blue-400);
+            color: white;
+        }
+
+        .feedback-item {
+            background: var(--blue-50);
+            border: 1px solid var(--blue-200);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .feedback-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 0.5rem;
+        }
+
+        .export-options {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .export-btn {
+            flex: 1;
+            padding: 1rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .export-pdf { background: var(--blue-700); color: white; }
+        .export-docx { background: var(--blue-600); color: white; }
+        .export-html { background: var(--blue-500); color: white; }
+
+        .export-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .education-details, .certification-details, .reference-details {
+            font-size: 0.9rem;
+            color: var(--secondary);
+            margin-top: 0.25rem;
+        }
+
+        .template-info {
+            margin-top: 0.5rem;
+            font-size: 0.875rem;
+            color: var(--secondary);
+            text-align: center;
+        }
+
+        .reference-contact {
+            font-size: 0.85rem;
+            color: var(--secondary);
+            margin-top: 0.25rem;
+        }
+
+        /* New styles for improvements */
+        .validation-error {
+            color: var(--danger);
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+            display: none;
+        }
+
+        .input-error {
+            border-color: var(--danger) !important;
+        }
+
+        .progress-indicator {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        .progress-step {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: var(--blue-200);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: var(--secondary);
+            position: relative;
+            z-index: 2;
+        }
+
+        .progress-step.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .progress-step.completed {
+            background: var(--success);
+            color: white;
+        }
+
+        .progress-line {
+            position: absolute;
+            top: 15px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--blue-200);
+            z-index: 1;
+        }
+
+        .progress-fill {
+            position: absolute;
+            top: 15px;
+            left: 0;
+            height: 2px;
+            background: var(--primary);
+            z-index: 1;
+            transition: width 0.3s ease;
+        }
+
+        .section-collapsible .section-title {
+            cursor: pointer;
+            position: relative;
+            padding-right: 2rem;
+        }
+
+        .section-collapsible .section-title::after {
+            content: '▼';
+            position: absolute;
+            right: 0;
+            transition: transform 0.3s ease;
+        }
+
+        .section-collapsible.collapsed .section-title::after {
+            transform: rotate(-90deg);
+        }
+
+        .section-collapsible.collapsed .section-content {
+            display: none;
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            color: white;
+            font-size: 1.5rem;
+            display: none;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            background: white;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2);
+            border-left: 4px solid var(--success);
+            transform: translateX(150%);
+            transition: transform 0.3s ease;
+            z-index: 1001;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.error {
+            border-left-color: var(--danger);
+        }
+
+        /* Skills list styles */
+        .skills-list {
+            list-style-type: disc;
+            padding-left: 1.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .skills-list li {
+            margin-bottom: 0.25rem;
+            color: var(--dark);
+        }
+
+        .skills-category {
+            margin-bottom: 1rem;
+        }
+
+        .skills-category-title {
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        .skill-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem;
+            background: var(--blue-50);
+            border-radius: 6px;
+            margin-bottom: 0.25rem;
+        }
+
+        .skill-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        /* Feedback system styles */
+        .feedback-system {
+            background: var(--blue-50);
+            border: 2px solid var(--blue-300);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+
+        .feedback-toggle {
+            background: none;
+            border: none;
+            color: var(--primary);
+            cursor: pointer;
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .feedback-content {
+            display: none;
+        }
+
+        .feedback-content.show {
+            display: block;
+        }
+
+        .ai-improvement {
+            background: #f0f9ff;
+            border-left: 4px solid var(--primary);
+            padding: 0.75rem;
+            margin: 0.5rem 0;
+            border-radius: 4px;
+            font-size: 0.875rem;
+        }
+
+        .improvement-suggestion {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 0.5rem 0;
+        }
+
+        .feedback-badge {
+            background: var(--accent);
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            margin-left: 0.5rem;
+        }
+
+        @media (max-width: 1024px) {
+            .app-container {
+                grid-template-columns: 1fr;
+            }
+            .preview-section {
+                border-left: none;
+                border-top: 3px solid var(--blue-200);
+            }
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            .progress-indicator {
+                overflow-x: auto;
+                padding-bottom: 1rem;
+            }
+            .export-options {
+                flex-direction: column;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .input-section, .preview-section {
+                padding: 1rem;
+            }
+            .section {
+                padding: 1rem;
+            }
+            .btn-group {
+                flex-direction: column;
+            }
+            .template-2 .resume-header {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="loading-overlay" id="loadingOverlay">
+        <div>Generating your resume...</div>
+    </div>
+
+    <div class="notification" id="notification">
+        <div id="notificationMessage">Operation completed successfully!</div>
+    </div>
+
+    <div class="container">
+        <header>
+            <h1>Resume Builder </h1>
+        </header>
+
+        <div class="app-container">
+            <!-- Input Section -->
+            <div class="input-section">
+                <!-- Progress Indicator -->
+                <div class="progress-indicator">
+                    <div class="progress-line"></div>
+                    <div class="progress-fill" id="progressFill"></div>
+                    <div class="progress-step active" id="step1" data-tooltip="Personal Info">1</div>
+                    <div class="progress-step" id="step2" data-tooltip="Experience">2</div>
+                    <div class="progress-step" id="step3" data-tooltip="Education">3</div>
+                    <div class="progress-step" id="step4" data-tooltip="Skills">4</div>
+                    <div class="progress-step" id="step5" data-tooltip="Review">5</div>
+                </div>
+
+                <!-- Template Selection -->
+                <div class="section section-collapsible">
+                    <h3 class="section-title">Choose Template</h3>
+                    <div class="section-content">
+                        <div class="template-selector">
+                            <select class="template-dropdown" id="templateSelect">
+                                <option value="1">Professional Blue - Clean & Traditional</option>
+                                <option value="2">Modern Blue - Contemporary Design</option>
+                                <option value="3">Creative Blue - Bold & Expressive</option>
+                            </select>
+                            <div class="template-preview template-1" id="templatePreview">
+                                Professional Blue Template Preview
+                            </div>
+                            <div class="template-info" id="templateInfo">
+                                Perfect for corporate jobs and traditional industries
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Personal Information -->
+                <div class="section section-collapsible">
+                    <h3 class="section-title">Personal Information</h3>
+                    <div class="section-content">
+                        <div class="form-group">
+                            <label for="fullName" class="required">Full Name</label>
+                            <input type="text" id="fullName" required>
+                            <div class="validation-error" id="fullNameError">Please enter your full name</div>
+                        </div>
+                        <div class="form-group">
+                            <label for="jobTitle" class="required">Professional Title</label>
+                            <input type="text" id="jobTitle" required>
+                            <div class="validation-error" id="jobTitleError">Please enter your professional title</div>
+                        </div>
+                        <div class="form-group">
+                            <label for="email" class="required">Email</label>
+                            <input type="email" id="email" required>
+                            <div class="validation-error" id="emailError">Please enter a valid email address</div>
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Phone</label>
+                            <input type="tel" id="phone">
+                        </div>
+                        <div class="form-group">
+                            <label for="location">Location</label>
+                            <input type="text" id="location">
+                        </div>
+                        <div class="form-group">
+                            <label for="linkedin">LinkedIn</label>
+                            <input type="url" id="linkedin">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Professional Summary -->
+                <div class="section section-collapsible">
+                    <h3 class="section-title">Professional Summary</h3>
+                    <div class="section-content">
+                        <div class="form-group">
+                            <textarea id="summary" rows="4"></textarea>
+                            <div class="character-count" id="summaryCount">0/250</div>
+                        </div>
+                        <button class="btn btn-outline" id="generateSummary">🤖 Generate AI Summary</button>
+                        <div class="feedback-system" id="summaryFeedback">
+                            <button class="feedback-toggle" onclick="toggleFeedback('summaryFeedback')">
+                                  AI Feedback & Suggestions <span class="feedback-badge" id="summaryBadge">3</span>
+                            </button>
+                            <div class="feedback-content" id="summaryFeedbackContent"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Work Experience -->
+                <div class="section section-collapsible">
+                    <h3 class="section-title">Work Experience</h3>
+                    <div class="section-content">
+                        <div class="form-group">
+                            <label for="company">Company</label>
+                            <input type="text" id="company">
+                        </div>
+                        <div class="form-group">
+                            <label for="position">Position</label>
+                            <input type="text" id="position">
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="startDate">Start Date</label>
+                                <input type="month" id="startDate">
+                            </div>
+                            <div class="form-group">
+                                <label for="endDate">End Date</label>
+                                <input type="month" id="endDate">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>
+                                <input type="checkbox" id="currentJob"> Currently working here
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label for="experienceDescription">Description & Achievements</label>
+                            <textarea id="experienceDescription" rows="3"></textarea>
+                        </div>
+                        <button class="btn btn-primary" id="addExperience">+ Add Experience</button>
+                        <div id="experienceList"></div>
+                    </div>
+                </div>
+
+                <!-- Education Section -->
+                <div class="section section-collapsible">
+                    <h3 class="section-title">Education</h3>
+                    <div class="section-content">
+                        <div class="form-group">
+                            <label for="institution">Institution</label>
+                            <input type="text" id="institution">
+                        </div>
+                        <div class="form-group">
+                            <label for="degree">Degree & Major</label>
+                            <input type="text" id="degree">
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="educationStartDate">Start Date</label>
+                                <input type="month" id="educationStartDate">
+                            </div>
+                            <div class="form-group">
+                                <label for="educationEndDate">End Date</label>
+                                <input type="month" id="educationEndDate">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>
+                                <input type="checkbox" id="currentlyStudying"> Currently studying here
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label for="gpa">GPA</label>
+                            <input type="text" id="gpa">
+                        </div>
+                        <div class="form-group">
+                            <label for="honors">Honors & Awards</label>
+                            <input type="text" id="honors">
+                        </div>
+                        <div class="form-group">
+                            <label for="relevantCoursework">Relevant Coursework</label>
+                            <textarea id="relevantCoursework" rows="2"></textarea>
+                        </div>
+                        <button class="btn btn-primary" id="addEducation">+ Add Education</button>
+                        <div id="educationList"></div>
+                    </div>
+                </div>
+
+                <!-- Skills & Industry Optimization -->
+                <div class="section section-collapsible">
+                    <h3 class="section-title">Skills & Industry Optimization</h3>
+                    <div class="section-content">
+                        <div class="form-group">
+                            <label for="industry">Industry</label>
+                            <select id="industry">
+                                <option value="">Select Industry</option>
+                                <option value="technology">Technology</option>
+                                <option value="healthcare">Healthcare</option>
+                                <option value="finance">Finance</option>
+                                <option value="marketing">Marketing</option>
+                                <option value="design">Design</option>
+                                <option value="engineering">Engineering</option>
+                                <option value="education">Education</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="technicalSkills">Technical Skills (one per line)</label>
+                            <textarea id="technicalSkills" rows="4"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="softSkills">Soft Skills (one per line)</label>
+                            <textarea id="softSkills" rows="4"></textarea>
+                        </div>
+                        <button class="btn btn-outline" id="suggestKeywords">Suggest Industry Keywords</button>
+                        <div id="keywordSuggestions" class="keyword-suggestions" style="display: none;"></div>
+                    </div>
+                </div>
+
+                <!-- References Section -->
+                <div class="section section-collapsible">
+                    <h3 class="section-title">References</h3>
+                    <div class="section-content">
+                        <div class="form-group">
+                            <label for="referenceName">Reference Name</label>
+                            <input type="text" id="referenceName">
+                        </div>
+                        <div class="form-group">
+                            <label for="referenceTitle">Title & Company</label>
+                            <input type="text" id="referenceTitle">
+                        </div>
+                        <div class="form-group">
+                            <label for="referenceEmail">Email</label>
+                            <input type="email" id="referenceEmail">
+                        </div>
+                        <div class="form-group">
+                            <label for="referencePhone">Phone</label>
+                            <input type="tel" id="referencePhone">
+                        </div>
+                        <div class="form-group">
+                            <label for="referenceRelationship">Relationship</label>
+                            <input type="text" id="referenceRelationship">
+                        </div>
+                        <button class="btn btn-primary" id="addReference">+ Add Reference</button>
+                        <div id="referenceList"></div>
+                    </div>
+                </div>
+
+                <!-- Job Description Matching -->
+                <div class="section section-collapsible">
+                    <h3 class="section-title">Job Description Matching</h3>
+                    <div class="section-content">
+                        <div class="form-group">
+                            <label for="jobDescription">Paste Job Description</label>
+                            <textarea id="jobDescription" rows="4"></textarea>
+                        </div>
+                        <button class="btn btn-outline" id="analyzeJob"> Analyze Job Match</button>
+                        <div id="matchAnalysis" style="display: none; margin-top: 1rem;"></div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="btn-group">
+                    <button class="btn btn-primary" id="updatePreview">Update Preview</button>
+                    <button class="btn btn-success" id="getAISuggestions">Get AI Suggestions</button>
+                    <button class="btn btn-danger" id="resetForm">Reset Form</button>
+                </div>
+
+                <!-- Export Options -->
+                <div class="export-options">
+                    <button class="export-btn export-pdf" id="exportPDF">
+                            Export PDF
+                    </button>
+                    <button class="export-btn export-docx" id="exportDOCX">
+                            Export DOCX
+                    </button>
+                    <button class="export-btn export-html" id="exportHTML">
+                            Export HTML
+                    </button>
+                </div>
+            </div>
+
+            <!-- Preview Section -->
+            <div class="preview-section">
+                <h3 class="section-title">Resume Preview</h3>
+                <div class="resume-preview template-1" id="resumePreview">
+                    <div class="resume-header">
+                        <div class="resume-name" id="previewName">Your Name</div>
+                        <div class="resume-title" id="previewTitle">Professional Title</div>
+                        <div class="resume-contact">
+                            <span id="previewEmail"></span>
+                            <span id="previewPhone"></span>
+                            <span id="previewLocation"></span>
+                        </div>
+                    </div>
+
+                    <div class="resume-section">
+                        <div class="section-title">Professional Summary</div>
+                        <p id="previewSummary"></p>
+                    </div>
+
+                    <div class="resume-section">
+                        <div class="section-title">Work Experience</div>
+                        <div id="previewExperience"></div>
+                    </div>
+
+                    <div class="resume-section">
+                        <div class="section-title">Education</div>
+                        <div id="previewEducation"></div>
+                    </div>
+
+                    <div class="resume-section">
+                        <div class="section-title">Skills</div>
+                        <div id="previewSkills">
+                            <div class="skills-category">
+                                <div class="skills-category-title">Technical Skills</div>
+                                <ul class="skills-list" id="previewTechnicalSkills"></ul>
+                            </div>
+                            <div class="skills-category">
+                                <div class="skills-category-title">Soft Skills</div>
+                                <ul class="skills-list" id="previewSoftSkills"></ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="resume-section" id="previewReferencesSection">
+                        <div class="section-title">References</div>
+                        <div id="previewReferences">
+                            <p>References available upon request.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ATS Score -->
+                <div class="ats-score" id="atsScore" style="display: none;">
+                    <h4>ATS Compatibility Score</h4>
+                    <div class="score-bar">
+                        <div class="score-fill" id="scoreFill" style="width: 0%"></div>
+                    </div>
+                    <div id="scoreText">0% - Poor</div>
+                    <div id="scoreSuggestions" style="margin-top: 0.5rem; font-size: 0.875rem;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Industry Keywords Database
+        const industryKeywords = {
+            technology: [
+                "JavaScript", "Python", "React", "Node.js", "AWS", "Docker", "Kubernetes",
+                "Agile", "Scrum", "CI/CD", "Git", "REST APIs", "Microservices", "Machine Learning",
+                "Cloud Computing", "DevOps", "TypeScript", "SQL", "NoSQL", "System Design"
+            ],
+            healthcare: [
+                "Patient Care", "EMR", "HIPAA", "Clinical", "Healthcare IT", "Medical Terminology",
+                "Patient Assessment", "Treatment Planning", "Healthcare Compliance", "Medical Records",
+                "Clinical Documentation", "Healthcare Analytics", "Telemedicine", "Patient Safety"
+            ],
+            finance: [
+                "Financial Analysis", "Risk Management", "Investment Banking", "Portfolio Management",
+                "Financial Modeling", "Excel", "Bloomberg", "Valuation", "M&A", "Due Diligence",
+                "Regulatory Compliance", "Accounting", "Financial Reporting", "Wealth Management"
+            ],
+            marketing: [
+                "Digital Marketing", "SEO", "SEM", "Google Analytics", "Social Media Marketing",
+                "Content Strategy", "Email Marketing", "Marketing Automation", "CRM", "Brand Management",
+                "Market Research", "Campaign Management", "Conversion Optimization", "Analytics"
+            ],
+            design: [
+                "UI/UX Design", "Figma", "Adobe Creative Suite", "User Research", "Wireframing",
+                "Prototyping", "Design Systems", "Visual Design", "Interaction Design", "User Testing",
+                "Responsive Design", "Design Thinking", "Product Design", "Graphic Design"
+            ],
+            engineering: [
+                "AutoCAD", "SolidWorks", "MATLAB", "Project Management", "Structural Analysis",
+                "Thermodynamics", "CAD/CAM", "Finite Element Analysis", "Product Development",
+                "Quality Control", "Manufacturing Processes", "Technical Documentation"
+            ],
+            education: [
+                "Curriculum Development", "Lesson Planning", "Classroom Management", "Student Assessment",
+                "Educational Technology", "Differentiated Instruction", "Student Engagement",
+                "Learning Management Systems", "Academic Counseling", "Program Development"
+            ]
+        };
+
+        // Template Information
+        const templateInfo = {
+            "1": {
+                name: "Professional Blue",
+                description: "Perfect for corporate jobs and traditional industries",
+                previewText: "Professional Blue Template Preview"
+            },
+            "2": {
+                name: "Modern Blue",
+                description: "Ideal for tech companies and contemporary workplaces",
+                previewText: "Modern Blue Template Preview"
+            },
+            "3": {
+                name: "Creative Blue",
+                description: "Great for design roles and creative industries",
+                previewText: "Creative Blue Template Preview"
+            }
+        };
+
+        // AI Content Suggestions
+        const aiSuggestions = {
+            summaries: {
+                technology: "Results-driven software engineer with {years} years of experience in full-stack development. Proven track record of delivering scalable solutions and improving system performance. Strong expertise in modern technologies and agile methodologies.",
+                healthcare: "Dedicated healthcare professional with {years} years of experience in patient care and medical operations. Committed to delivering high-quality healthcare services while ensuring compliance with industry standards and regulations.",
+                finance: "Strategic financial analyst with {years} years of experience in financial modeling, risk assessment, and investment analysis. Proven ability to drive financial growth and optimize investment strategies.",
+                marketing: "Creative marketing professional with {years} years of experience in digital marketing strategies and brand development. Proven track record of driving engagement and increasing ROI through data-driven campaigns.",
+                design: "Innovative designer with {years} years of experience in user-centered design and creative problem-solving. Passionate about creating intuitive and visually appealing digital experiences.",
+                engineering: "Skilled engineer with {years} years of experience in product development and technical innovation. Strong background in engineering principles and project management with a focus on quality and efficiency.",
+                education: "Passionate educator with {years} years of experience in curriculum development and student-centered instruction. Committed to fostering inclusive learning environments and promoting academic excellence."
+            },
+            bulletPoints: [
+                "Increased efficiency by {percentage}% through implementation of {technology}",
+                "Led a team of {number} to successfully deliver {project} on time and under budget",
+                "Reduced costs by {percentage}% by optimizing {process}",
+                "Improved {metric} by {percentage}% through strategic {action}",
+                "Managed {budget} budget while achieving {result}",
+                "Developed and implemented {system} that processed {volume} transactions daily"
+            ]
+        };
+
+        // Application State
+        const state = {
+            template: 1,
+            experiences: [],
+            education: [],
+            technicalSkills: [],
+            softSkills: [],
+            references: [],
+            industry: "",
+            userPreferences: JSON.parse(localStorage.getItem('resumePreferences')) || {
+                preferredKeywords: [],
+                rejectedSuggestions: [],
+                acceptedTemplates: [],
+                editHistory: [],
+                feedback: []
+            }
+        };
+
+        // DOM Elements
+        const templateSelect = document.getElementById('templateSelect');
+        const templatePreview = document.getElementById('templatePreview');
+        const templateInfoEl = document.getElementById('templateInfo');
+        const resumePreview = document.getElementById('resumePreview');
+        const fullNameInput = document.getElementById('fullName');
+        const jobTitleInput = document.getElementById('jobTitle');
+        const emailInput = document.getElementById('email');
+        const phoneInput = document.getElementById('phone');
+        const locationInput = document.getElementById('location');
+        const summaryInput = document.getElementById('summary');
+        const technicalSkillsInput = document.getElementById('technicalSkills');
+        const softSkillsInput = document.getElementById('softSkills');
+        const industrySelect = document.getElementById('industry');
+        const jobDescriptionInput = document.getElementById('jobDescription');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        const notification = document.getElementById('notification');
+        const notificationMessage = document.getElementById('notificationMessage');
+
+        // Initialize Event Listeners
+        function initializeApp() {
+            // Template Selection
+            templateSelect.addEventListener('change', function() {
+                const template = this.value;
+                selectTemplate(template);
+                trackUserPreference('template', template);
+            });
+
+            // Real-time Preview Updates
+            [fullNameInput, jobTitleInput, emailInput, phoneInput, locationInput, summaryInput].forEach(input => {
+                input.addEventListener('input', updatePreview);
+            });
+
+            // Skills and Industry
+            technicalSkillsInput.addEventListener('input', updateSkillsPreview);
+            softSkillsInput.addEventListener('input', updateSkillsPreview);
+            industrySelect.addEventListener('change', handleIndustryChange);
+
+            // Buttons
+            document.getElementById('addExperience').addEventListener('click', addExperience);
+            document.getElementById('addEducation').addEventListener('click', addEducation);
+            document.getElementById('addReference').addEventListener('click', addReference);
+            document.getElementById('suggestKeywords').addEventListener('click', suggestKeywords);
+            document.getElementById('generateSummary').addEventListener('click', generateAISummary);
+            document.getElementById('getAISuggestions').addEventListener('click', getAISuggestions);
+            document.getElementById('resetForm').addEventListener('click', resetForm);
+            document.getElementById('updatePreview').addEventListener('click', updatePreview);
+            document.getElementById('analyzeJob').addEventListener('click', analyzeJobMatch);
+
+            // Export Buttons
+            document.getElementById('exportPDF').addEventListener('click', exportPDF);
+            document.getElementById('exportDOCX').addEventListener('click', exportDOCX);
+            document.getElementById('exportHTML').addEventListener('click', exportHTML);
+
+            // Current job/study checkboxes
+            document.getElementById('currentJob').addEventListener('change', function() {
+                document.getElementById('endDate').disabled = this.checked;
+                if (this.checked) {
+                    document.getElementById('endDate').value = '';
+                }
+            });
+
+            document.getElementById('currentlyStudying').addEventListener('change', function() {
+                document.getElementById('educationEndDate').disabled = this.checked;
+                if (this.checked) {
+                    document.getElementById('educationEndDate').value = '';
+                }
+            });
+
+            // Collapsible sections
+            document.querySelectorAll('.section-collapsible .section-title').forEach(title => {
+                title.addEventListener('click', function() {
+                    const section = this.parentElement;
+                    section.classList.toggle('collapsed');
+                });
+            });
+
+            // Form validation
+            document.querySelectorAll('input[required]').forEach(input => {
+                input.addEventListener('blur', validateField);
+            });
+
+            // Load saved preferences
+            loadUserPreferences();
+            updatePreview();
+            updateProgressIndicator();
+        }
+
+        // Template Selection
+        function selectTemplate(template) {
+            state.template = template;
+            
+            // Update template preview
+            templatePreview.className = 'template-preview';
+            templatePreview.classList.add(`template-${template}`);
+            templatePreview.textContent = templateInfo[template].previewText;
+            
+            // Update template info
+            templateInfoEl.textContent = templateInfo[template].description;
+            
+            // Update resume preview
+            resumePreview.className = 'resume-preview';
+            resumePreview.classList.add(`template-${template}`);
+            updatePreview();
+        }
+
+        // Update Preview
+        function updatePreview() {
+            // Update basic info
+            document.getElementById('previewName').textContent = fullNameInput.value || 'Your Name';
+            document.getElementById('previewTitle').textContent = jobTitleInput.value || 'Professional Title';
+            
+            // Update contact info with proper formatting
+            const email = emailInput.value;
+            const phone = phoneInput.value;
+            const location = locationInput.value;
+            
+            const contactElements = [];
+            if (email) contactElements.push(`<span>${email}</span>`);
+            if (phone) contactElements.push(`<span>${phone}</span>`);
+            if (location) contactElements.push(`<span>${location}</span>`);
+            
+            document.getElementById('previewEmail').innerHTML = contactElements.join(' • ');
+            
+            // Update summary
+            document.getElementById('previewSummary').textContent = summaryInput.value || '';
+
+            // Update experiences
+            updateExperiencePreview();
+            
+            // Update education
+            updateEducationPreview();
+
+            // Update skills
+            updateSkillsPreview();
+
+            // Update references
+            updateReferencesPreview();
+
+            // Calculate ATS Score
+            calculateATSScore();
+            
+            // Update progress indicator
+            updateProgressIndicator();
+        }
+
+        // Add Experience
+        function addExperience() {
+            const company = document.getElementById('company').value;
+            const position = document.getElementById('position').value;
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            const description = document.getElementById('experienceDescription').value;
+            const isCurrent = document.getElementById('currentJob').checked;
+
+            if (!company || !position) {
+                showNotification('Please fill in Company and Position fields', true);
+                return;
+            }
+
+            const experience = {
+                id: Date.now(),
+                company,
+                position,
+                startDate: formatDate(startDate),
+                endDate: isCurrent ? 'Present' : (endDate ? formatDate(endDate) : 'Present'),
+                description,
+                isCurrent
+            };
+
+            state.experiences.push(experience);
+            updateExperiencePreview();
+            clearExperienceForm();
+            showNotification('Experience added successfully');
+
+            // Track user action for learning
+            trackUserPreference('experience', experience);
+        }
+
+        function updateExperiencePreview() {
+            const container = document.getElementById('previewExperience');
+            const listContainer = document.getElementById('experienceList');
+            
+            if (state.experiences.length === 0) {
+                container.innerHTML = '';
+                listContainer.innerHTML = '';
+                return;
+            }
+
+            // Update preview
+            container.innerHTML = state.experiences.map(exp => `
+                <div class="experience-item">
+                    <div class="item-header">
+                        <div>
+                            <div class="item-title">${exp.position}</div>
+                            <div class="item-subtitle">${exp.company}</div>
+                        </div>
+                        <div class="item-date">${exp.startDate} - ${exp.endDate}</div>
+                    </div>
+                    <p>${exp.description}</p>
+                </div>
+            `).join('');
+
+            // Update list with edit/delete buttons
+            listContainer.innerHTML = state.experiences.map(exp => `
+                <div class="experience-item">
+                    <div class="item-actions">
+                        <button class="btn btn-sm btn-outline" onclick="editExperience(${exp.id})">Edit</button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteExperience(${exp.id})">Delete</button>
+                    </div>
+                    <div class="item-header">
+                        <div>
+                            <div class="item-title">${exp.position}</div>
+                            <div class="item-subtitle">${exp.company}</div>
+                        </div>
+                        <div class="item-date">${exp.startDate} - ${exp.endDate}</div>
+                    </div>
+                    <p>${exp.description}</p>
+                </div>
+            `).join('');
+        }
+
+        function editExperience(id) {
+            const experience = state.experiences.find(exp => exp.id === id);
+            if (!experience) return;
+
+            // Populate form with experience data
+            document.getElementById('company').value = experience.company;
+            document.getElementById('position').value = experience.position;
+            document.getElementById('experienceDescription').value = experience.description;
+            document.getElementById('currentJob').checked = experience.isCurrent;
+            
+            // Remove the experience from state
+            deleteExperience(id);
+            
+            showNotification('Experience loaded for editing');
+        }
+
+        function deleteExperience(id) {
+            state.experiences = state.experiences.filter(exp => exp.id !== id);
+            updateExperiencePreview();
+            updatePreview();
+            showNotification('Experience deleted');
+        }
+
+        // Add Education
+        function addEducation() {
+            const institution = document.getElementById('institution').value;
+            const degree = document.getElementById('degree').value;
+            const startDate = document.getElementById('educationStartDate').value;
+            const endDate = document.getElementById('educationEndDate').value;
+            const gpa = document.getElementById('gpa').value;
+            const honors = document.getElementById('honors').value;
+            const coursework = document.getElementById('relevantCoursework').value;
+            const isCurrent = document.getElementById('currentlyStudying').checked;
+
+            if (!institution || !degree) {
+                showNotification('Please fill in Institution and Degree fields', true);
+                return;
+            }
+
+            const education = {
+                id: Date.now(),
+                institution,
+                degree,
+                startDate: formatDate(startDate),
+                endDate: isCurrent ? 'Present' : (endDate ? formatDate(endDate) : 'Present'),
+                gpa,
+                honors,
+                coursework,
+                isCurrent
+            };
+
+            state.education.push(education);
+            updateEducationPreview();
+            clearEducationForm();
+            showNotification('Education added successfully');
+
+            // Track user action for learning
+            trackUserPreference('education', education);
+        }
+
+        function updateEducationPreview() {
+            const container = document.getElementById('previewEducation');
+            const listContainer = document.getElementById('educationList');
+            
+            if (state.education.length === 0) {
+                container.innerHTML = '';
+                listContainer.innerHTML = '';
+                return;
+            }
+
+            // Update preview
+            container.innerHTML = state.education.map(edu => `
+                <div class="education-item">
+                    <div class="item-header">
+                        <div>
+                            <div class="item-title">${edu.degree}</div>
+                            <div class="item-subtitle">${edu.institution}</div>
+                        </div>
+                        <div class="item-date">${edu.startDate} - ${edu.endDate}</div>
+                    </div>
+                    <div class="education-details">
+                        ${edu.gpa ? `<div><strong>GPA:</strong> ${edu.gpa}</div>` : ''}
+                        ${edu.honors ? `<div><strong>Honors:</strong> ${edu.honors}</div>` : ''}
+                        ${edu.coursework ? `<div><strong>Relevant Coursework:</strong> ${edu.coursework}</div>` : ''}
+                    </div>
+                </div>
+            `).join('');
+
+            // Update list with edit/delete buttons
+            listContainer.innerHTML = state.education.map(edu => `
+                <div class="education-item">
+                    <div class="item-actions">
+                        <button class="btn btn-sm btn-outline" onclick="editEducation(${edu.id})">Edit</button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteEducation(${edu.id})">Delete</button>
+                    </div>
+                    <div class="item-header">
+                        <div>
+                            <div class="item-title">${edu.degree}</div>
+                            <div class="item-subtitle">${edu.institution}</div>
+                        </div>
+                        <div class="item-date">${edu.startDate} - ${edu.endDate}</div>
+                    </div>
+                    <div class="education-details">
+                        ${edu.gpa ? `<div><strong>GPA:</strong> ${edu.gpa}</div>` : ''}
+                        ${edu.honors ? `<div><strong>Honors:</strong> ${edu.honors}</div>` : ''}
+                        ${edu.coursework ? `<div><strong>Relevant Coursework:</strong> ${edu.coursework}</div>` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function editEducation(id) {
+            const education = state.education.find(edu => edu.id === id);
+            if (!education) return;
+
+            // Populate form with education data
+            document.getElementById('institution').value = education.institution;
+            document.getElementById('degree').value = education.degree;
+            document.getElementById('gpa').value = education.gpa || '';
+            document.getElementById('honors').value = education.honors || '';
+            document.getElementById('relevantCoursework').value = education.coursework || '';
+            document.getElementById('currentlyStudying').checked = education.isCurrent;
+            
+            // Remove the education from state
+            deleteEducation(id);
+            
+            showNotification('Education loaded for editing');
+        }
+
+        function deleteEducation(id) {
+            state.education = state.education.filter(edu => edu.id !== id);
+            updateEducationPreview();
+            updatePreview();
+            showNotification('Education deleted');
+        }
+
+        function updateSkillsPreview() {
+            const technicalSkills = technicalSkillsInput.value.split('\n').map(skill => skill.trim()).filter(skill => skill);
+            const softSkills = softSkillsInput.value.split('\n').map(skill => skill.trim()).filter(skill => skill);
+            
+            state.technicalSkills = technicalSkills;
+            state.softSkills = softSkills;
+            
+            const technicalContainer = document.getElementById('previewTechnicalSkills');
+            const softContainer = document.getElementById('previewSoftSkills');
+            
+            technicalContainer.innerHTML = technicalSkills.length > 0 
+                ? technicalSkills.map(skill => `<li>${skill}</li>`).join('')
+                : '';
+                
+            softContainer.innerHTML = softSkills.length > 0 
+                ? softSkills.map(skill => `<li>${skill}</li>`).join('')
+                : '';
+        }
+
+        // Add Reference
+        function addReference() {
+            const name = document.getElementById('referenceName').value;
+            const title = document.getElementById('referenceTitle').value;
+            const email = document.getElementById('referenceEmail').value;
+            const phone = document.getElementById('referencePhone').value;
+            const relationship = document.getElementById('referenceRelationship').value;
+
+            if (!name || !title) {
+                showNotification('Please fill in Name and Title fields', true);
+                return;
+            }
+
+            const reference = {
+                id: Date.now(),
+                name,
+                title,
+                email,
+                phone,
+                relationship
+            };
+
+            state.references.push(reference);
+            updateReferencesPreview();
+            clearReferenceForm();
+            showNotification('Reference added successfully');
+
+            // Track user action for learning
+            trackUserPreference('reference', reference);
+        }
+
+        function updateReferencesPreview() {
+            const container = document.getElementById('previewReferences');
+            const listContainer = document.getElementById('referenceList');
+            const section = document.getElementById('previewReferencesSection');
+            
+            if (state.references.length === 0) {
+                container.innerHTML = '<p>References available upon request.</p>';
+                listContainer.innerHTML = '';
+                return;
+            }
+
+            // Update preview
+            container.innerHTML = state.references.map(ref => `
+                <div class="reference-item">
+                    <div class="item-header">
+                        <div>
+                            <div class="item-title">${ref.name}</div>
+                            <div class="item-subtitle">${ref.title}</div>
+                        </div>
+                    </div>
+                    <div class="reference-contact">
+                        ${ref.email ? `<div><strong>Email:</strong> ${ref.email}</div>` : ''}
+                        ${ref.phone ? `<div><strong>Phone:</strong> ${ref.phone}</div>` : ''}
+                        ${ref.relationship ? `<div><strong>Relationship:</strong> ${ref.relationship}</div>` : ''}
+                    </div>
+                </div>
+            `).join('');
+
+            // Update list with edit/delete buttons
+            listContainer.innerHTML = state.references.map(ref => `
+                <div class="reference-item">
+                    <div class="item-actions">
+                        <button class="btn btn-sm btn-outline" onclick="editReference(${ref.id})">Edit</button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteReference(${ref.id})">Delete</button>
+                    </div>
+                    <div class="item-header">
+                        <div>
+                            <div class="item-title">${ref.name}</div>
+                            <div class="item-subtitle">${ref.title}</div>
+                        </div>
+                    </div>
+                    <div class="reference-contact">
+                        ${ref.email ? `<div><strong>Email:</strong> ${ref.email}</div>` : ''}
+                        ${ref.phone ? `<div><strong>Phone:</strong> ${ref.phone}</div>` : ''}
+                        ${ref.relationship ? `<div><strong>Relationship:</strong> ${ref.relationship}</div>` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function editReference(id) {
+            const reference = state.references.find(ref => ref.id === id);
+            if (!reference) return;
+
+            // Populate form with reference data
+            document.getElementById('referenceName').value = reference.name;
+            document.getElementById('referenceTitle').value = reference.title;
+            document.getElementById('referenceEmail').value = reference.email || '';
+            document.getElementById('referencePhone').value = reference.phone || '';
+            document.getElementById('referenceRelationship').value = reference.relationship || '';
+            
+            // Remove the reference from state
+            deleteReference(id);
+            
+            showNotification('Reference loaded for editing');
+        }
+
+        function deleteReference(id) {
+            state.references = state.references.filter(ref => ref.id !== id);
+            updateReferencesPreview();
+            updatePreview();
+            showNotification('Reference deleted');
+        }
+
+        function clearReferenceForm() {
+            document.getElementById('referenceName').value = '';
+            document.getElementById('referenceTitle').value = '';
+            document.getElementById('referenceEmail').value = '';
+            document.getElementById('referencePhone').value = '';
+            document.getElementById('referenceRelationship').value = '';
+        }
+
+        // Industry Keywords Suggestions
+        function suggestKeywords() {
+            const industry = industrySelect.value;
+            if (!industry) {
+                showNotification('Please select an industry first', true);
+                return;
+            }
+
+            const keywords = industryKeywords[industry] || [];
+            const userSkills = new Set([...state.technicalSkills, ...state.softSkills].map(s => s.toLowerCase()));
+            
+            const suggestedKeywords = keywords.filter(keyword => 
+                !userSkills.has(keyword.toLowerCase()) &&
+                !state.userPreferences.rejectedSuggestions.includes(keyword)
+            );
+
+            const suggestionsContainer = document.getElementById('keywordSuggestions');
+            suggestionsContainer.innerHTML = `
+                <h4>Suggested Keywords for ${industry}</h4>
+                <div style="margin-top: 0.5rem;">
+                    ${suggestedKeywords.map(keyword => `
+                        <span class="keyword-tag" onclick="addKeyword('${keyword}')">${keyword}</span>
+                    `).join('')}
+                </div>
+                <p style="margin-top: 0.5rem; font-size: 0.875rem; color: #666;">
+                    Click on keywords to add them to your technical skills
+                </p>
+            `;
+            suggestionsContainer.style.display = 'block';
+
+            trackUserPreference('keyword_suggestions_viewed', industry);
+        }
+
+        function addKeyword(keyword) {
+            const currentSkills = technicalSkillsInput.value;
+            technicalSkillsInput.value = currentSkills ? `${currentSkills}\n${keyword}` : keyword;
+            updateSkillsPreview();
+            
+            // Learn from user acceptance
+            if (!state.userPreferences.preferredKeywords.includes(keyword)) {
+                state.userPreferences.preferredKeywords.push(keyword);
+                saveUserPreferences();
+            }
+            
+            showNotification(`Added keyword: ${keyword}`);
+        }
+
+        // AI Summary Generation
+        function generateAISummary() {
+            const industry = industrySelect.value;
+            const years = Math.max(1, state.experiences.length);
+            
+            if (!industry) {
+                showNotification('Please select your industry first', true);
+                return;
+            }
+
+            const template = aiSuggestions.summaries[industry] || aiSuggestions.summaries.technology;
+            const summary = template.replace('{years}', years);
+            
+            summaryInput.value = summary;
+            updatePreview();
+            showNotification('AI summary generated');
+
+            trackUserPreference('ai_summary_generated', industry);
+        }
+
+        // Job Matching Analysis
+        function analyzeJobMatch() {
+            const jobDescription = jobDescriptionInput.value.toLowerCase();
+            if (!jobDescription) {
+                showNotification('Please paste a job description first', true);
+                return;
+            }
+
+            const resumeText = getResumeText().toLowerCase();
+            const jobKeywords = extractKeywords(jobDescription);
+            const matchedKeywords = jobKeywords.filter(keyword => 
+                resumeText.includes(keyword.toLowerCase())
+            );
+
+            const matchPercentage = Math.round((matchedKeywords.length / jobKeywords.length) * 100);
+            const missingKeywords = jobKeywords.filter(keyword => 
+                !resumeText.includes(keyword.toLowerCase())
+            ).slice(0, 10); // Show top 10 missing keywords
+
+            const analysisContainer = document.getElementById('matchAnalysis');
+            analysisContainer.innerHTML = `
+                <div style="background: #f0f9ff; padding: 1rem; border-radius: 8px;">
+                    <h4>Job Match Analysis: ${matchPercentage}% Match</h4>
+                    <p><strong>Matched Keywords:</strong> ${matchedKeywords.length}/${jobKeywords.length}</p>
+                    ${missingKeywords.length > 0 ? `
+                        <p><strong>Missing Keywords to Add:</strong></p>
+                        <div style="margin-top: 0.5rem;">
+                            ${missingKeywords.map(keyword => 
+                                `<span class="keyword-tag" onclick="addKeyword('${keyword}')">${keyword}</span>`
+                            ).join('')}
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+            analysisContainer.style.display = 'block';
+
+            trackUserPreference('job_analysis', { matchPercentage, industry: state.industry });
+        }
+
+        function extractKeywords(text) {
+            // Simple keyword extraction - in real implementation, use NLP
+            const words = text.toLowerCase()
+                .replace(/[^\w\s]/g, '')
+                .split(/\s+/)
+                .filter(word => word.length > 3);
+            
+            return [...new Set(words)].slice(0, 20); // Return unique keywords
+        }
+
+        // ATS Score Calculation
+        function calculateATSScore() {
+            const resumeText = getResumeText().toLowerCase();
+            let score = 0;
+            const suggestions = [];
+
+            // Check for essential sections (25 points)
+            const sections = ['experience', 'education', 'skills', 'summary'];
+            const foundSections = sections.filter(section => resumeText.includes(section));
+            score += (foundSections.length / sections.length) * 25;
+
+            // Check for contact info (15 points)
+            const contactInfo = ['@', 'phone', 'location'];
+            const foundContact = contactInfo.filter(info => resumeText.includes(info));
+            score += (foundContact.length / contactInfo.length) * 15;
+
+            // Check for education completeness (10 points)
+            if (state.education.length > 0) {
+                const education = state.education[0];
+                if (education.institution && education.degree) {
+                    score += 10;
+                } else {
+                    suggestions.push('Complete education details (institution and degree)');
+                }
+            } else {
+                suggestions.push('Add education information');
+            }
+
+            // Check for industry keywords (25 points)
+            if (state.industry && industryKeywords[state.industry]) {
+                const industryKeys = industryKeywords[state.industry];
+                const foundKeywords = industryKeys.filter(keyword => 
+                    resumeText.includes(keyword.toLowerCase())
+                );
+                score += (foundKeywords.length / industryKeys.length) * 25;
+                
+                if (foundKeywords.length < industryKeys.length * 0.5) {
+                    suggestions.push('Add more industry-specific keywords');
+                }
+            }
+
+            // Check for quantifiable achievements (15 points)
+            const hasNumbers = /\d+/.test(resumeText);
+            const hasPercentages = /%\s/.test(resumeText);
+            score += (hasNumbers ? 10 : 0) + (hasPercentages ? 5 : 0);
+
+            if (!hasNumbers) suggestions.push('Include quantifiable achievements with numbers');
+            if (!hasPercentages) suggestions.push('Add percentage improvements to show impact');
+
+            score = Math.min(Math.round(score), 100);
+
+            // Update ATS Score Display
+            const atsScore = document.getElementById('atsScore');
+            const scoreFill = document.getElementById('scoreFill');
+            const scoreText = document.getElementById('scoreText');
+            const scoreSuggestions = document.getElementById('scoreSuggestions');
+
+            scoreFill.style.width = `${score}%`;
+            scoreText.textContent = `${score}% - ${getScoreRating(score)}`;
+            scoreSuggestions.innerHTML = suggestions.length > 0 
+                ? `<strong>Suggestions:</strong> ${suggestions.join(', ')}`
+                : 'Great job! Your resume is well-optimized.';
+
+            atsScore.style.display = 'block';
+            state.atsScore = score;
+        }
+
+        function getScoreRating(score) {
+            if (score >= 90) return 'Excellent';
+            if (score >= 75) return 'Good';
+            if (score >= 60) return 'Fair';
+            return 'Needs Improvement';
+        }
+
+        function getResumeText() {
+            return `
+                ${fullNameInput.value} ${jobTitleInput.value} ${summaryInput.value}
+                ${state.experiences.map(exp => `${exp.position} ${exp.company} ${exp.description}`).join(' ')}
+                ${state.education.map(edu => `${edu.degree} ${edu.institution} ${edu.gpa} ${edu.honors} ${edu.coursework}`).join(' ')}
+                ${state.technicalSkills.join(' ')} ${state.softSkills.join(' ')}
+            `;
+        }
+
+        // AI Suggestions
+        function getAISuggestions() {
+            const suggestions = [];
+            const resumeText = getResumeText().toLowerCase();
+
+            // Check for missing industry keywords
+            if (state.industry && industryKeywords[state.industry]) {
+                const missingKeywords = industryKeywords[state.industry].filter(keyword =>
+                    !resumeText.includes(keyword.toLowerCase()) &&
+                    !state.userPreferences.rejectedSuggestions.includes(keyword)
+                ).slice(0, 5);
+
+                if (missingKeywords.length > 0) {
+                    suggestions.push({
+                        type: 'keywords',
+                        title: 'Add Industry Keywords',
+                        description: 'Consider adding these industry-specific keywords:',
+                        items: missingKeywords
+                    });
+                }
+            }
+
+            // Check for education details
+            if (state.education.length === 0) {
+                suggestions.push({
+                    type: 'education',
+                    title: 'Add Education Information',
+                    description: 'Include your educational background:',
+                    items: ['Add your degree and institution', 'Include graduation date', 'Mention relevant coursework or honors']
+                });
+            }
+
+            // Check for quantifiable achievements
+            if (!/\d+/.test(resumeText)) {
+                suggestions.push({
+                    type: 'achievements',
+                    title: 'Add Quantifiable Achievements',
+                    description: 'Include numbers and percentages to show impact:',
+                    items: [
+                        'Increased efficiency by 25%',
+                        'Reduced costs by $50,000',
+                        'Managed team of 10 people',
+                        'Improved performance by 40%'
+                    ]
+                });
+            }
+
+            // Display suggestions
+            if (suggestions.length > 0) {
+                alert('AI Suggestions:\n\n' + suggestions.map(s => 
+                    `• ${s.title}: ${s.items.join(', ')}`
+                ).join('\n'));
+            } else {
+                alert('Great job! Your resume looks well-optimized.');
+            }
+
+            trackUserPreference('ai_suggestions_requested', suggestions.length);
+        }
+
+        // Export Functions
+        function exportPDF() {
+            showLoading(true);
+            
+            setTimeout(() => {
+                const { jsPDF } = window.jspdf;
+                
+                html2canvas(resumePreview).then(canvas => {
+                    const imgData = canvas.toDataURL('image/png');
+                    const pdf = new jsPDF('p', 'mm', 'a4');
+                    const pdfWidth = pdf.internal.pageSize.getWidth();
+                    const pdfHeight = pdf.internal.pageSize.getHeight();
+                    
+                    pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+                    pdf.save(`${fullNameInput.value || 'resume'}_ATS_Resume.pdf`);
+                    showLoading(false);
+                    showNotification('PDF exported successfully');
+                }).catch(error => {
+                    console.error('PDF export error:', error);
+                    showLoading(false);
+                    showNotification('Error exporting PDF', true);
+                });
+            }, 500);
+
+            trackUserPreference('export', 'pdf');
+        }
+
+        function exportDOCX() {
+            showNotification('DOCX export would be implemented with a proper library. For now, use PDF export.');
+            trackUserPreference('export', 'docx');
+        }
+
+        function exportHTML() {
+            const htmlContent = resumePreview.outerHTML;
+            const blob = new Blob([htmlContent], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${fullNameInput.value || 'resume'}_resume.html`;
+            a.click();
+            showNotification('HTML exported successfully');
+            
+            trackUserPreference('export', 'html');
+        }
+
+        // User Preference Tracking (Feedback Loop)
+        function trackUserPreference(type, data) {
+            state.userPreferences.editHistory.push({
+                type,
+                data,
+                timestamp: new Date().toISOString(),
+                template: state.template,
+                industry: state.industry
+            });
+
+            // Keep only last 100 edits
+            if (state.userPreferences.editHistory.length > 100) {
+                state.userPreferences.editHistory.shift();
+            }
+
+            // Learn from user behavior
+            if (type === 'experience' || type === 'education') {
+                const feedback = analyzeUserEdit(type, data);
+                if (feedback) {
+                    state.userPreferences.feedback.push(feedback);
+                }
+            }
+
+            saveUserPreferences();
+        }
+
+        function analyzeUserEdit(type, data) {
+            // Analyze user edits to improve future suggestions
+            const feedback = {
+                type,
+                timestamp: new Date().toISOString(),
+                insights: []
+            };
+
+            if (type === 'experience') {
+                // Analyze experience patterns
+                if (data.description && data.description.length > 200) {
+                    feedback.insights.push('user_prefers_detailed_experience_descriptions');
+                }
+                if (data.description && /\d+%/.test(data.description)) {
+                    feedback.insights.push('user_includes_quantifiable_metrics');
+                }
+            }
+
+            if (type === 'education') {
+                // Analyze education patterns
+                if (data.gpa && parseFloat(data.gpa) > 3.5) {
+                    feedback.insights.push('user_highlights_strong_gpa');
+                }
+                if (data.honors) {
+                    feedback.insights.push('user_includes_academic_honors');
+                }
+            }
+
+            return feedback.insights.length > 0 ? feedback : null;
+        }
+
+        function saveUserPreferences() {
+            localStorage.setItem('resumePreferences', JSON.stringify(state.userPreferences));
+        }
+
+        function loadUserPreferences() {
+            const saved = localStorage.getItem('resumePreferences');
+            if (saved) {
+                state.userPreferences = JSON.parse(saved);
+                
+                // Apply learned preferences
+                if (state.userPreferences.preferredKeywords.length > 0) {
+                    technicalSkillsInput.value = state.userPreferences.preferredKeywords.join('\n');
+                    updateSkillsPreview();
+                }
+            }
+        }
+
+        // Utility Functions
+        function formatDate(dateString) {
+            if (!dateString) return 'Present';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short' });
+        }
+
+        function clearExperienceForm() {
+            document.getElementById('company').value = '';
+            document.getElementById('position').value = '';
+            document.getElementById('startDate').value = '';
+            document.getElementById('endDate').value = '';
+            document.getElementById('experienceDescription').value = '';
+            document.getElementById('currentJob').checked = false;
+            document.getElementById('endDate').disabled = false;
+        }
+
+        function clearEducationForm() {
+            document.getElementById('institution').value = '';
+            document.getElementById('degree').value = '';
+            document.getElementById('educationStartDate').value = '';
+            document.getElementById('educationEndDate').value = '';
+            document.getElementById('gpa').value = '';
+            document.getElementById('honors').value = '';
+            document.getElementById('relevantCoursework').value = '';
+            document.getElementById('currentlyStudying').checked = false;
+            document.getElementById('educationEndDate').disabled = false;
+        }
+
+        function handleIndustryChange() {
+            state.industry = industrySelect.value;
+            calculateATSScore();
+            trackUserPreference('industry_change', state.industry);
+        }
+
+        function resetForm() {
+            if (confirm('Are you sure you want to reset the form? This will clear all your data.')) {
+                document.querySelectorAll('input, textarea, select').forEach(element => {
+                    if (element.id !== 'industry') {
+                        element.value = '';
+                    }
+                });
+                state.experiences = [];
+                state.education = [];
+                state.technicalSkills = [];
+                state.softSkills = [];
+                state.references = [];
+                updatePreview();
+                showNotification('Form reset successfully');
+            }
+        }
+
+        // UI Enhancement Functions
+        function showNotification(message, isError = false) {
+            notificationMessage.textContent = message;
+            notification.className = 'notification';
+            if (isError) {
+                notification.classList.add('error');
+            }
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        function showLoading(show) {
+            loadingOverlay.style.display = show ? 'flex' : 'none';
+        }
+
+        function validateField(e) {
+            const field = e.target;
+            const errorElement = document.getElementById(`${field.id}Error`);
+            
+            if (!field.value.trim()) {
+                field.classList.add('input-error');
+                if (errorElement) errorElement.style.display = 'block';
+            } else {
+                field.classList.remove('input-error');
+                if (errorElement) errorElement.style.display = 'none';
+            }
+        }
+
+        function updateProgressIndicator() {
+            const steps = [
+                document.getElementById('step1'),
+                document.getElementById('step2'),
+                document.getElementById('step3'),
+                document.getElementById('step4'),
+                document.getElementById('step5')
+            ];
+            
+            const progressFill = document.getElementById('progressFill');
+            
+            // Calculate completion percentage
+            let completed = 0;
+            if (fullNameInput.value && jobTitleInput.value && emailInput.value) completed++;
+            if (state.experiences.length > 0) completed++;
+            if (state.education.length > 0) completed++;
+            if (state.technicalSkills.length > 0 || state.softSkills.length > 0) completed++;
+            if (summaryInput.value) completed++;
+            
+            // Update steps
+            steps.forEach((step, index) => {
+                step.className = 'progress-step';
+                if (index < completed) {
+                    step.classList.add('completed');
+                } else if (index === completed) {
+                    step.classList.add('active');
+                }
+            });
+            
+            // Update progress bar
+            const percentage = (completed / steps.length) * 100;
+            progressFill.style.width = `${percentage}%`;
+        }
+
+        function toggleFeedback(elementId) {
+            const content = document.getElementById(elementId + 'Content');
+            content.classList.toggle('show');
+        }
+
+        // Global functions for HTML onclick
+        window.addKeyword = addKeyword;
+        window.editExperience = editExperience;
+        window.deleteExperience = deleteExperience;
+        window.editEducation = editEducation;
+        window.deleteEducation = deleteEducation;
+        window.editReference = editReference;
+        window.deleteReference = deleteReference;
+        window.toggleFeedback = toggleFeedback;
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', initializeApp);
+    </script>
+</body>
+</html>
