@@ -776,16 +776,6 @@
         <div class="app-container">
             <!-- Input Section -->
             <div class="input-section">
-                <!-- Progress Indicator -->
-                <div class="progress-indicator">
-                    <div class="progress-line"></div>
-                    <div class="progress-fill" id="progressFill"></div>
-                    <div class="progress-step active" id="step1" data-tooltip="Personal Info">1</div>
-                    <div class="progress-step" id="step2" data-tooltip="Experience">2</div>
-                    <div class="progress-step" id="step3" data-tooltip="Education">3</div>
-                    <div class="progress-step" id="step4" data-tooltip="Skills">4</div>
-                    <div class="progress-step" id="step5" data-tooltip="Review">5</div>
-                </div>
 
                 <!-- Template Selection -->
                 <div class="section section-collapsible">
@@ -801,7 +791,6 @@
                                 Professional Blue Template Preview
                             </div>
                             <div class="template-info" id="templateInfo">
-                                Perfect for corporate jobs and traditional industries
                             </div>
                         </div>
                     </div>
@@ -949,6 +938,7 @@
                                 <option value="design">Design</option>
                                 <option value="engineering">Engineering</option>
                                 <option value="education">Education</option>
+                                <option value="other">other </option>
                             </select>
                         </div>
                         <div class="form-group">
@@ -1135,17 +1125,14 @@
         const templateInfo = {
             "1": {
                 name: "Professional Blue",
-                description: "Perfect for corporate jobs and traditional industries",
                 previewText: "Professional Blue Template Preview"
             },
             "2": {
                 name: "Modern Blue",
-                description: "Ideal for tech companies and contemporary workplaces",
                 previewText: "Modern Blue Template Preview"
             },
             "3": {
                 name: "Creative Blue",
-                description: "Great for design roles and creative industries",
                 previewText: "Creative Blue Template Preview"
             }
         };
